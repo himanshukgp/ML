@@ -48,28 +48,31 @@ class Leaf(object):
 
 # Calculate entropy with respect to one feature.
 def calculate_entropy_feature(feature,label):
-	count_true1=0
-	count_true2=0
-	count_false1=0
-	count_false2=0
+
+	count_true1 = 0
+	count_true0 = 0
+	count0 = 0
+	count1 = 0
+	ent_1 = 0
+	ent_0 = 0
+	p=0
 
 	for i in range(feature.shape[0]):
 		if feature[i]==1 and label[i]==1: count_true1+=1
-		if feature[i]==1 and label[i]==0: count_true2+=1
-		if feature[i]==0 and label[i]==1: count_false1+=1
-		if feature[i]==0 and label[i]==0: count_false2+=1
+		if feature[i]==0 and label[i]==1: count_true0+=1
+		if feature[i]==1: count1+=1
+		if feature[i]==0: count0+=1
 
-	p1=count_true1/(count_true1+count_true2) if (count_true1+count_true2) else 0
-	p2=count_true2/(count_true1+count_true2) if (count_true1+count_true2) else 0
-	p_1=-1*p1*np.log2(p1) if p1 else 0 + -1*p2*np.log2(p2) if p2 else 0
+	if count1!=0: 
+		p1=count_true1/count1
+		ent_1 = (-1*p1*np.log2(p1) if p1 else 0) - ((1-p1)*np.log2(1-p1) if (1-p1) else 0)
+	if count0!=0: 
+		p0=count_true0/count0
+		ent_0 = (-1*p0*np.log2(p0) if p0 else 0) - ((1-p0)*np.log2(1-p0) if (1-p0) else 0)
+	
+	if count0+count1!=0: p=count0/(count0+count1)
 
-	p3=count_false1/(count_false1+count_false2)
-	p4=count_false2/(count_false1+count_false2)
-	p_2=(-1*p3*np.log2(p3) if p3 else 0) + (-1*p4*np.log2(p4) if p4 else 0)
-
-	p_w1 = (count_true1+count_true2)/(count_true1+count_true2+count_false1+count_false2)
-	p_w2 = (count_false1+count_false2)/(count_true1+count_true2+count_false1+count_false2)
-	return p_w1*p_1+p_w2*p_2
+	return p*ent_0+(1-p)*ent_1
 
 
 # Calculate entropy of all features and assuming
