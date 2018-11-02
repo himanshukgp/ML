@@ -30,12 +30,16 @@ class perceptron():
         self.n_epochs = n_epochs
         self.w = None
         self.delta_w = None
+        self.b = None
+        self.delta_b = None
 
     def __call__(self, X=None, y=None):
-        # Initialize the weights. Bias is first variable
+        # Initialize the weights and Bias
         self.delta_w = np.zeros(X.shape[1])
+        self.delta_b = 0
         np.random.seed(seed=30)
         self.w = np.random.rand(X.shape[1])
+        self.b = 0
         self.train(X, y)
 
     def sigmoid(self, x):
@@ -46,7 +50,7 @@ class perceptron():
         a_ = np.zeros(X.shape[0])
         for i in range(X.shape[0]):
             a_[i] = np.dot(X[i], self.w)
-        return self.sigmoid(x=a_)
+        return self.sigmoid(x=a_+self.b)
 
     def train(self, X=None, y=None):
         for k in range(self.n_epochs):
@@ -54,11 +58,14 @@ class perceptron():
 
             for i in range(self.delta_w.shape[0]):
                 self.delta_w[i]=0
+            self.delta_b = 0
 
             a_ = self.forward_prop(X)
             for i in range(X.shape[0]):
                 for j in range(self.delta_w.shape[0]):
-                    self.delta_w[j] = self.delta_w[j] + self.lr*(y[i]-a_[i])*X[i][j]
+                    self.delta_w[j] = self.delta_w[j] + (
+                        self.lr * (y[i]-a_[i]) * a_[i] * (1-a_[i]) * X[i][j])
+                #self.delta_b = 
 
             for i in range(self.w.shape[0]):
                 self.w[i] = self.w[i] + self.delta_w[i]
